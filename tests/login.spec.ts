@@ -1,29 +1,21 @@
-import { expect, test } from "@playwright/test"
+import { test, expect } from "@playwright/test";
+import { LoginPage } from "../pages/LoginPage";
 
-test('the user login with sucess', async ({ page }) => {
-    await page.goto('https://www.saucedemo.com/');
+test.describe("Login Tests", () => {
+    let loginPage: LoginPage;
 
-    await page.locator('[data-test="username"]').fill("standard_user");
-    await page.locator('[data-test="password"]').fill("secret_sauce");
-    await page.locator('[data-test="login-button"]').click();
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
+        await loginPage.navigate();
+    });
 
-    await expect(page.url()).toBe('https://www.saucedemo.com/inventory.html');
-    await expect(page).toHaveURL(/inventory/);
+    test("The user logs in successfully", async () => {
+        await loginPage.login("standard_user", "secret_sauce");
+        await loginPage.assertLoginSuccess();
+    });
 
-    const productTitle  = await page.locator('.header_secondary_container > span')
-    await expect(productTitle).toHaveText('Products');
-
-});
-
-test('The user insert wrong credencial', async ({page}) => {
-    await page.goto('https://www.saucedemo.com/');
-
-    await page.locator('[data-test="username"]').fill("standard_user");
-    await page.locator('[data-test="password"]').fill("123");
-    await page.locator('[data-test="login-button"]').click();
-
-    const errorText = await page.getByText('Username and password do not match any user in this service')    
-
-    await expect(errorText).toBeVisible();
-
+    test("The user inserts wrong credentials", async () => {
+        await loginPage.login("standard_user", "123");
+        await loginPage.assertLoginFailure();
+    });
 });
