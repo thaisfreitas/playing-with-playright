@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test"
 
 test('the user login with sucess', async ({ page }) => {
     await page.goto('https://www.saucedemo.com/');
-    // await expect(page.title()).toBe('Swag Labs'); 
 
     await page.locator('[data-test="username"]').fill("standard_user");
     await page.locator('[data-test="password"]').fill("secret_sauce");
@@ -16,6 +15,15 @@ test('the user login with sucess', async ({ page }) => {
 
 });
 
-test('user login with error', async ({page}) => {
+test('The user insert wrong credencial', async ({page}) => {
+    await page.goto('https://www.saucedemo.com/');
+
+    await page.locator('[data-test="username"]').fill("standard_user");
+    await page.locator('[data-test="password"]').fill("123");
+    await page.locator('[data-test="login-button"]').click();
+
+    const errorText = await page.getByText('Username and password do not match any user in this service')    
+
+    await expect(errorText).toBeVisible();
 
 });
